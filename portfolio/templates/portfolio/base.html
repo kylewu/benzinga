@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}{% endblock %} - Benzinga</title>
+
+    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/pure-min.css">
+</head>
+
+<body>
+  <div class="header">
+      <div class="home-menu pure-menu pure-menu-open pure-menu-horizontal pure-menu-fixed">
+          <a class="pure-menu-heading" href="">Benzinga</a>
+          <ul>
+              <li class="pure-menu-selected"><a href="#">Home</a></li>
+
+              {% if 'username' not in request.session %}
+              <li><a href="#">Sign Up</a></li>
+              {% else %}
+              <li><a href="#">Logout</a></li>
+              {% endif %}
+          </ul>
+      </div>
+  </div>
+
+  {% block content %}
+  {% endblock %}
+</body>
+</html>
+

@@ -1,0 +1,18 @@
+{% extends 'portfolio/base.html' %}
+
+{% block content %}
+<div class="splash-container">
+    <div class="splash">
+        <h1 class="splash-head">Big Bold Text</h1>
+        <p class="splash-subhead">
+            Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+        </p>
+            
+        <form action="{% url 'portfolio.views.login' %}" method="post">
+          {% csrf_token %}
+          {{ form }}
+          <input type="submit" value="Submit" />
+        </form>
+    </div>
+</div>
+{% endblock %}

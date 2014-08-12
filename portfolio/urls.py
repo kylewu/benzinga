@@ -2,7 +2,7 @@ from django.conf.urls import patterns, url
 
 
 STOCK_PATTERN = r'(?P<symbol>[a-zA-Z]+)/'
-QUANTITY_PATTERN = r'(?P<quantity>\d+)/'
+QUANTITY_PATTERN = r'(?P<quantity>[0-9-]+)/'
 PRICE_PATTERN = r'(?P<price>[0-9.]+)/'
 
 

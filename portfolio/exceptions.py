@@ -20,3 +20,7 @@ class NotEnoughStockInHands(Exception):
 
 class NotEnoughFundExceptin(Exception):
     pass
+
+
+class NegativeQuantityException(Exception):
+    pass

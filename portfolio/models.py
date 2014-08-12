@@ -7,7 +7,8 @@ from django.conf import settings
 from .utils import lookup as benzinga_lookup
 from .exceptions import (
     PriceChangedException, NotEnoughStockInMarket, NotEnoughStockInHands,
-    CannotFindStockException, EmptySymbolException, NotEnoughFundExceptin)
+    CannotFindStockException, EmptySymbolException, NotEnoughFundExceptin,
+    NegativeQuantityException)
 
 BUY = 'B'
 SELL = 'S'
@@ -144,6 +145,8 @@ class Account(models.Model):
 
         NOTICE: this behavior is not the same as in real life!
         """
+        if quantity <= 0:
+            raise NegativeQuantityException('Only positive quantity number is allowed')
         price_name = {BUY: 'ask', SELL: 'bid'}[type]
         quantity_name = {BUY: 'asksize', SELL: 'bidsize'}[type]
 

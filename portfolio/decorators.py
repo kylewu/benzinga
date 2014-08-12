@@ -8,9 +8,7 @@ from django.shortcuts import redirect
 
 from .models import Account, Stock
 from .utils import lookup as benzinga_lookup
-from .exceptions import (
-    EmptySymbolException, CannotFindStockException, PriceChangedException,
-    NotEnoughStockInMarket, NotEnoughStockInHands, NotEnoughFundExceptin)
+from .exceptions import EmptySymbolException, CannotFindStockException
 
 
 def login_required(view_func):
@@ -65,55 +63,5 @@ def stock_decorator(view_func):
             kwargs['json'] = json
 
             return view_func(request, *args, **kwargs)
-
-    return func
-
-
-def stock_exception_handler(view_func):
-    """
-    Exception handler, returns proper error message to user
-    """
-
-    @wraps(view_func)
-    def func(request, *args, **kwargs):
-        try:
-            try:
-                return view_func(request, *args, **kwargs)
-            except NotEnoughFundExceptin as e:
-                messages.warning(request, str(e))
-                raise
-            except NotEnoughStockInHands as e:
-                messages.warning(request, str(e))
-                raise
-            except PriceChangedException as e:
-                messages.warning(request, str(e))
-                raise
-            except NotEnoughStockInMarket as e:
-                messages.warning(request, str(e))
-                raise
-            except CannotFindStockException as e:
-                messages.warning(request, str(e))
-                raise
-            except EmptySymbolException as e:
-                messages.warning(request, str(e))
-                raise
-        except:
-            return redirect('portfolio.views.index')
-
-    return func
-
-
-def redirect_with_GET(view_func):
-    """
-    Redirects with GET query string
-    Normally, after redirecting to a new page, GET query string is lost
-    """
-
-    @wraps(view_func)
-    def func(request, *args, **kwargs):
-        resp = view_func(request, *args, **kwargs)
-        if request.GET:
-            resp['Location'] += '?' + urlencode(request.GET)
-        return resp
 
     return func

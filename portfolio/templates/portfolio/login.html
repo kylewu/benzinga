@@ -1,18 +1,20 @@
 {% extends 'portfolio/base.html' %}
+{% block title %}Welcome{% endblock %}
 
-{% block content %}
-<div class="splash-container">
-    <div class="splash">
-        <h1 class="splash-head">Big Bold Text</h1>
-        <p class="splash-subhead">
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-        </p>
+{% block left-content %}
+  <div class="splash">
+    <img src="http://cdn1.benzinga.com/sites/all/themes/bz2/images/logo-basic.png" />
+  </div>
+{% endblock %}
+
+{% block right-content %}
+<div>
+  <h1>Welcome to Benzinga Portfolio</h1>
             
-        <form action="{% url 'portfolio.views.login' %}" method="post">
-          {% csrf_token %}
-          {{ form }}
-          <input type="submit" value="Submit" />
-        </form>
-    </div>
+  <form class="pure-form" action="{% url 'portfolio.views.login' %}" method="post">
+    {% csrf_token %}
+    {{ form }}
+    <input class="pure-button" type="submit" value="Submit" />
+  </form>
 </div>
 {% endblock %}

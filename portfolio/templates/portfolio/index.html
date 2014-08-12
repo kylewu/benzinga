@@ -1,8 +1,80 @@
 {% extends 'portfolio/base.html' %}
 
-{% block content %}
-  <!-- TODO Portfolio here-->
-  <br />
-  <br />
-  Login as {{ request.session.username }}
+{% block title %}Portfolio{% endblock %}
+
+{% block left-content %}
+  {% if stock %}
+  <div class="stock">
+    <h2 class="title">{{ stock.name }} <span id='symbol'>{{ stock.symbol }}</span></h2>
+
+    <table class="pure-table">
+      <thead>
+        <tr>
+          <th>Bid</th>
+          <th>Bid Size</th>
+          <th>Ask</th>
+          <th>Ask Size</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td id="bid-price">{{ bid_price|floatformat:2 }}</td>
+          <td id="bid-size">{{ bid_size }}</td>
+          <td id="ask-price">{{ ask_price|floatformat:2 }}</td>
+          <td id="ask-size">{{ ask_size }}</td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <form class="pure-form">
+      <input id="input-quantity" type="text" name="quantity" placeholder="Quantity"/>
+    </form>
+    <button id="btn-buy" class="pure-button pure-button-primary">Buy</button>
+    <button id="btn-sell" class="pure-button pure-button-primary">Sell</button>
+  </div>
+  {% endif %}
+{% endblock %}
+
+{% block right-content %}
+<div class="portfolio">
+  <div>
+    <h2>Current Portfolio</h2>
+    <ul class="account">
+        <li>Hello {{request.account.username }} !</li>
+        <li><a href="{% url 'portfolio.views.reset' %}">Reset Account</a></li>
+        <li><a href="{% url 'portfolio.views.logout' %}">Logout</a></li>
+    </ul>
+
+    <p class="cash">
+    Cash: ${{ request.account.amount|floatformat:2 }}
+    </p>
+
+  </div>
+  {% if holding_stocks %}
+    <table class="pure-table">
+      <thead>
+        <tr>
+          <th>Company</th>
+          <th>Quantity</th>
+          <th>Price Paid</th>
+          <th></th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for s in holding_stocks %}
+        <tr>
+          <td>{{ s.stock.name }}</td>
+          <td>{{ s.quantity }}</td>
+          <td>{{ s.price|floatformat:2 }}</td>
+          <td><a class="pure-button" href="/?symbol={{ s.stock.symbol }}">View</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>You have not bought any stocks.</p>
+  {% endif %}
+</div>
 {% endblock %}

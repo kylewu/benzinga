@@ -21,7 +21,10 @@ class Stock(models.Model):
     symbol = models.CharField(max_length=8)
     name = models.CharField(max_length=32, blank=True)
     industry = models.CharField(max_length=32, blank=True)
-    exchange = models.CharField(max_length=16, blank=True)  # here we can use choices
+    exchange = models.CharField(max_length=16, blank=True)
+
+    def __unicode(self):
+        return u'{0}: {1}'.format(self.name, self.symbol)
 
     @staticmethod
     def get_stock_from_json(json):
@@ -35,7 +38,7 @@ class Stock(models.Model):
         if 'message' in json:
             # json is not valid
             raise EmptySymbolException('Cannot find stock ' + json['symbol'])
-        if not json['price']:
+        if not json['industry'] or not json['exchange']:
             # APPL has several null fields
             # do know why, but we raise error
             raise CannotFindStockException('Cannot find stock ' + json['symbol'])
@@ -46,8 +49,8 @@ class Stock(models.Model):
             # if these fields change very often,
             # we should update them in cron jobs maybe
             stock.name = json['name']
-            stock.industry = json['industry'] or ''
-            stock.exchange = json['exchange'] or ''
+            stock.industry = json['industry']
+            stock.exchange = json['exchange']
             stock.save()
         return stock
 

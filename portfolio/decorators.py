@@ -14,6 +14,9 @@ from .exceptions import (
 
 
 def login_required(view_func):
+    """
+    Redirects to login page if user is not login
+    """
 
     @wraps(view_func)
     def func(request, *args, **kwargs):
@@ -23,7 +26,8 @@ def login_required(view_func):
         # to make this project simple
         # we do not save Account instance in context processor
         try:
-            request.account = Account.objects.get(username=request.session['username'])
+            request.account = Account.objects.get(
+                username=request.session['username'])
         except Account.DoesNotExist:
             pass
 
@@ -33,6 +37,10 @@ def login_required(view_func):
 
 
 def stock_decorator(view_func):
+    """
+    Gets or crates Stock instance based on symbol in kwargs
+    then passes it to view_func
+    """
     @wraps(view_func)
     def func(request, *args, **kwargs):
         symbol = kwargs.pop('symbol')
@@ -62,29 +70,32 @@ def stock_decorator(view_func):
 
 
 def stock_exception_handler(view_func):
+    """
+    Exception handler, returns proper error message to user
+    """
 
     @wraps(view_func)
     def func(request, *args, **kwargs):
         try:
             try:
                 return view_func(request, *args, **kwargs)
-            except NotEnoughFundExceptin:
-                messages.warning(request, u'You do not have enough money')
+            except NotEnoughFundExceptin as e:
+                messages.warning(request, str(e))
                 raise
-            except NotEnoughStockInHands:
-                messages.warning(request, u'You do not have enough stocks')
+            except NotEnoughStockInHands as e:
+                messages.warning(request, str(e))
                 raise
-            except PriceChangedException:
-                messages.warning(request, u'Price changes, please refetch new price')
+            except PriceChangedException as e:
+                messages.warning(request, str(e))
                 raise
-            except NotEnoughStockInMarket:
-                messages.warning(request, u'There is not enough stocks in the market')
+            except NotEnoughStockInMarket as e:
+                messages.warning(request, str(e))
+                raise
             except CannotFindStockException as e:
                 messages.warning(request, str(e))
                 raise
             except EmptySymbolException as e:
                 messages.warning(request, str(e))
-                raise
                 raise
         except:
             return redirect('portfolio.views.index')
@@ -95,6 +106,7 @@ def stock_exception_handler(view_func):
 def redirect_with_GET(view_func):
     """
     Redirects with GET query string
+    Normally, after redirecting to a new page, GET query string is lost
     """
 
     @wraps(view_func)

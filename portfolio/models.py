@@ -34,14 +34,14 @@ class Stock(models.Model):
         """
         if 'status' in json:
             # json is not valid
-            raise CannotFindStockException('Cannot find stock ' + json['symbol'])
+            raise CannotFindStockException('Cannot find stock')
         if 'message' in json:
             # json is not valid
-            raise EmptySymbolException('Cannot find stock ' + json['symbol'])
+            raise EmptySymbolException('Cannot find stock')
         if not json['industry'] or not json['exchange']:
             # APPL has several null fields
             # do know why, but we raise error
-            raise CannotFindStockException('Cannot find stock ' + json['symbol'])
+            raise CannotFindStockException('Cannot find stock')
 
         stock, created = Stock.objects.get_or_create(symbol=json['symbol'])
         if created:

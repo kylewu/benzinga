@@ -1,4 +1,5 @@
 from functools import wraps
+from urllib import urlencode
 
 from requests.exceptions import Timeout
 
@@ -36,26 +37,35 @@ def stock_decorator(view_func):
     def func(request, *args, **kwargs):
         symbol = kwargs.pop('symbol')
 
+        if symbol:
+            try:
+                json = benzinga_lookup(symbol)
+            except Timeout:
+                messages.error(request, u'Cannot connect to Benzinga.')
+                raise
+
+            try:
+                stock = Stock.get_stock_from_json(json)
+            except CannotFindStockException as e:
+                messages.warning(request, str(e))
+                raise
+            except EmptySymbolException as e:
+                messages.warning(request, str(e))
+                raise
+
+            kwargs['stock'] = stock
+            kwargs['json'] = json
+
+            return view_func(request, *args, **kwargs)
+
+    return func
+
+
+def stock_exception_handler(view_func):
+
+    @wraps(view_func)
+    def func(request, *args, **kwargs):
         try:
-            if symbol:
-                try:
-                    json = benzinga_lookup(symbol)
-                except Timeout:
-                    messages.error(request, u'Cannot connect to Benzinga.')
-                    raise
-
-                try:
-                    stock = Stock.get_stock_from_json(json)
-                except CannotFindStockException:
-                    messages.warning(request, u'Cannot find stock symbol {0}'.format(symbol))
-                    raise
-                except EmptySymbolException:
-                    messages.warning(request, u'Empty symbol is not allowed')
-                    raise
-
-                kwargs['stock'] = stock
-                kwargs['json'] = json
-
             try:
                 return view_func(request, *args, **kwargs)
             except NotEnoughFundExceptin:
@@ -69,9 +79,29 @@ def stock_decorator(view_func):
                 raise
             except NotEnoughStockInMarket:
                 messages.warning(request, u'There is not enough stocks in the market')
+            except CannotFindStockException as e:
+                messages.warning(request, str(e))
                 raise
-
+            except EmptySymbolException as e:
+                messages.warning(request, str(e))
+                raise
+                raise
         except:
             return redirect('portfolio.views.index')
+
+    return func
+
+
+def redirect_with_GET(view_func):
+    """
+    Redirects with GET query string
+    """
+
+    @wraps(view_func)
+    def func(request, *args, **kwargs):
+        resp = view_func(request, *args, **kwargs)
+        if request.GET:
+            resp['Location'] += '?' + urlencode(request.GET)
+        return resp
 
     return func

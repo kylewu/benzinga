@@ -6,7 +6,7 @@ from django.conf import settings
 
 from .utils import lookup as benzinga_lookup
 from .forms import LoginForm
-from .decorators import login_required, stock_decorator
+from .decorators import login_required, stock_decorator, redirect_with_GET, stock_exception_handler
 from .models import Stock, HoldingStock, Account, Order
 
 
@@ -26,6 +26,7 @@ def login(request):
 
 
 @login_required
+@stock_exception_handler
 def index(request):
     holding_stocks = HoldingStock.objects.filter(account=request.account).order_by('stock__symbol')
 
@@ -63,6 +64,8 @@ def reset(request):
 
 
 @login_required
+@redirect_with_GET
+@stock_exception_handler
 @stock_decorator
 def buy(request, stock, quantity, price, json):
     quantity = int(quantity)
@@ -74,6 +77,8 @@ def buy(request, stock, quantity, price, json):
 
 
 @login_required
+@redirect_with_GET
+@stock_exception_handler
 @stock_decorator
 def sell(request, stock, quantity, price, json):
     quantity = int(quantity)

@@ -1,0 +1,65 @@
+#main-menu {
+  border-bottom: 1px solid black;
+  position: relative;
+  vertical-align: center;
+}
+
+#search {
+  float: right;
+  display: inline-block;
+  padding: 10px;
+}
+
+#main-menu .logo {
+  margin: 1em;
+  display: inline-block;
+}
+
+#main-menu:after {
+  content: "";
+  display: block; 
+  clear: both;
+}
+
+.splash {
+  margin-top: 40px;
+}
+
+#content {
+  width: 960px;
+  margin: 0 auto;
+}
+
+ul.account > li {
+  display: inline-block;
+  list-style-type: none;
+  vertical-align: middle;
+  margin-right: 20px;
+}
+
+.cash {
+  margin-left: 40px;
+}
+
+
+#left-content, #right-content {
+  min-height: 220px;
+}
+
+#left-content {
+  float: left;
+  width: 384px;
+}
+#right-content {
+  float: right;
+  width: 576px;
+}
+
+.stock {
+  margin-top: 60px;
+}
+
+.stock table,
+.stock form {
+  margin-bottom: 20px;
+}

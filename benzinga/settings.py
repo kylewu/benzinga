@@ -46,6 +46,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'portfolio.middleware.GETQueryStringRedirectMiddleware',
+    'portfolio.middleware.StockExceptionMiddleware',
 )
 
 ROOT_URLCONF = 'benzinga.urls'
@@ -82,6 +84,7 @@ INIT_CACHE = Decimal('100000.00')
 
 ON_HEROKU = 'ON_HEROKU' in os.environ
 if ON_HEROKU:
+    DEBUG = False
     # Parse database configuration from $DATABASE_URL
     import dj_database_url
     DATABASES['default'] = dj_database_url.config()

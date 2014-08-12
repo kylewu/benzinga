@@ -3,7 +3,7 @@ benzinga
 This app is deployed at [Heroku](http://benzinga-wenbin.herokuapp.com)
 
 
-NOTE
+NOTES
 -----
 > We will not be taking the bid and ask sizes into effect and instead will be assuming that there are an infinite amount
 > of shares available at the current bid and ask prices.
@@ -13,11 +13,15 @@ This app contains only the simplest HTML/CSS code because I focus more on backen
 In models.py, you will find some concepts which are very common in stock market.
 For example,
 * I double check price synced before making an order.
-* Every Order is kept in DB
+* Every Order is kept in DB (although I don't make use of them now)
 
 I also try to write code in different ways. For example, login form is a Django form while search blank is ony a `<input>` tag.
-I follow most of styles from pep8, but 80-char length per line. Nowadays we have wider screen so I prefer loosening this
+
+I follow most styles from pep8, but 80-char length per line. Nowadays we have wider screen so I prefer loosening this
 rule.
+
+I set one env variable with command `heroku config:set ON_HEROKU=1`.
+In settings.py, there a flag `ON_HEROKU = 'ON_HEROKU' in os.environ` which can be used to check where am I.
 
 
 Drawbacks

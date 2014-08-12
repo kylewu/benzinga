@@ -1,10 +1,12 @@
+from decimal import Decimal
+
 from django.db import models, transaction
 from django.db.models import Sum
 from django.conf import settings
 
 from .utils import lookup as benzinga_lookup
 from .exceptions import (
-    NotEnoughStockInMarket, NotEnoughStockInHands,
+    PriceChangedException, NotEnoughStockInMarket, NotEnoughStockInHands,
     CannotFindStockException, EmptySymbolException, NotEnoughFundExceptin)
 
 BUY = 'B'
@@ -17,9 +19,9 @@ ORDER_TYPES = (
 
 class Stock(models.Model):
     symbol = models.CharField(max_length=8)
-    name = models.CharField(max_length=32)
-    industry = models.CharField(max_length=32)
-    exchange = models.CharField(max_length=16)  # here we can use choices
+    name = models.CharField(max_length=32, blank=True)
+    industry = models.CharField(max_length=32, blank=True)
+    exchange = models.CharField(max_length=16, blank=True)  # here we can use choices
 
     @staticmethod
     def get_stock_from_json(json):
@@ -29,10 +31,14 @@ class Stock(models.Model):
         """
         if 'status' in json:
             # json is not valid
-            raise CannotFindStockException()
+            raise CannotFindStockException('Cannot find stock ' + json['symbol'])
         if 'message' in json:
             # json is not valid
-            raise EmptySymbolException()
+            raise EmptySymbolException('Cannot find stock ' + json['symbol'])
+        if not json['price']:
+            # APPL has several null fields
+            # do know why, but we raise error
+            raise CannotFindStockException('Cannot find stock ' + json['symbol'])
 
         stock, created = Stock.objects.get_or_create(symbol=json['symbol'])
         if created:
@@ -40,8 +46,8 @@ class Stock(models.Model):
             # if these fields change very often,
             # we should update them in cron jobs maybe
             stock.name = json['name']
-            stock.industry = json['industry']
-            stock.exchange = json['exchange']
+            stock.industry = json['industry'] or ''
+            stock.exchange = json['exchange'] or ''
             stock.save()
         return stock
 
@@ -64,10 +70,13 @@ class Account(models.Model):
 
         # first check if we have enough fund to buy
         if quantity * price > self.amount:
-            raise NotEnoughFundExceptin()
+            raise NotEnoughFundExceptin('You do not have enough money')
 
         with transaction.atomic():
-            # create Order log first
+            self.amount -= price * quantity
+            self.save()
+
+            # create Order log
             Order.objects.create(
                 account=self,
                 stock=stock,
@@ -82,10 +91,6 @@ class Account(models.Model):
                 quantity=quantity,
                 price=price)
 
-            # finally update amount
-            self.amount -= price * quantity
-            self.save()
-
     def sell(self, stock, quantity, price, json=None):
         """
         Sell stock
@@ -97,10 +102,14 @@ class Account(models.Model):
             aggregate(Sum('quantity'))['quantity__sum']
 
         if sum < quantity:
-            raise NotEnoughStockInHands()
+            raise NotEnoughStockInHands('You do not have enough stocks')
 
         with transaction.atomic():
-            # create Order log first
+
+            self.amount += price * quantity
+            self.save()
+
+            # create Order log
             Order.objects.create(
                 account=self,
                 stock=stock,
@@ -120,10 +129,6 @@ class Account(models.Model):
                 hs.quantity = hs.quantity - quantity
                 hs.save()
 
-            # finally update amount
-            self.amount += price * quantity
-            self.save()
-
     def _sync(self, type, stock, quantity, price, json=None):
         """
         Before buy or sell stock,
@@ -142,12 +147,12 @@ class Account(models.Model):
         if json is None:
             json = benzinga_lookup(stock.symbol)
 
-        #if Decimal(json[price_name]) != price:
-            #raise PriceChangedException()
+        if Decimal(json[price_name]) != price:
+            raise PriceChangedException('Price changes, please refetch new price')
 
         if int(json[quantity_name]) < quantity:
             # not enough stock to provide
-            raise NotEnoughStockInMarket()
+            raise NotEnoughStockInMarket('There is not enough stocks in the market')
         return stock
 
 

@@ -7,6 +7,7 @@ NOTES
 -----
 > We will not be taking the bid and ask sizes into effect and instead will be assuming that there are an infinite amount
 > of shares available at the current bid and ask prices.
+
 In this app, bid and ask sizes are taken into effect.
 
 This app contains only the simplest HTML/CSS code because I focus more on backend.
@@ -20,8 +21,8 @@ I also try to write code in different ways. For example, login form is a Django 
 I follow most styles from pep8, but 80-char length per line. Nowadays we have wider screen so I prefer loosening this
 rule.
 
-I set one env variable with command `heroku config:set ON_HEROKU=1`.
-In settings.py, there a flag `ON_HEROKU = 'ON_HEROKU' in os.environ` which can be used to check where am I.
+One env variable is set with command `heroku config:set ON_HEROKU=1`.
+In settings.py, there is a flag `ON_HEROKU = 'ON_HEROKU' in os.environ` which can be used to check where am I.
 
 
 Drawbacks
